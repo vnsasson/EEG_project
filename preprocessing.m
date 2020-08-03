@@ -2,13 +2,16 @@ close all; clc;
 
 fs = 500;
 
-% first o
+% ALLEEG(2) = EEG;
+% CURRENTSET = 2;
+
+[ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
 %% 1-  Loading the data (all channels)
 EEG = pop_loadbv('C:\Users\sasso\Desktop\Studies\Project\B- Brain activity during reading\data\', 'Reading_screen_6.2019_31.12.19.vhdr', [], [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63]);
 EEG.setname='Original';
 EEG = eeg_checkset( EEG );
-[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
+[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG); % save modifications
 
 
 time = EEG.times;
@@ -33,12 +36,10 @@ EEG.chanlocs = pop_chanedit(EEG.chanlocs, 'lookup','C:\\Users\\sasso\\Desktop\\S
 
 %% reject by eye
 
-%pop_eegplot( EEG, 1, 0, 1);
-
+pop_eegplot( EEG, 1, 0, 1);
+pause
 
 %% referecence to avarage
-
-%EEG_referenced = pop_reref( EEG, []);
 
 EEG = pop_reref( EEG, []);
 EEG.setname='Referenced';
@@ -57,8 +58,6 @@ EEG = eeg_checkset( EEG );
 
 %% 3- Removing baseline (reduce the offset) 
 % useful when baseline differences between data epochs
-
-%EEG_rmbase = pop_rmbase(EEG_referenced,[],[]);
 
 EEG = pop_rmbase(EEG,[],[]);
 EEG.setname='Bias removed';
@@ -80,8 +79,6 @@ EEG = eeg_checkset( EEG );
 %% 4- filtering - BPF 0.5 - 45
 
 %HP 0.5
-%EEG_DC_filt = pop_eegfilt( EEG_rmbase, 0.5, 0);
-
 EEG = pop_eegfilt( EEG, 0.5, 0);
 EEG.setname='0.5 [Hz] HPF';
 EEG = eeg_checkset( EEG );
@@ -97,16 +94,12 @@ EEG = eeg_checkset( EEG );
 
 
 % 50 Hz notch
-%notched = pop_eegfiltnew( EEG_DC_filt, 47.5, 52.5, [], 1 );
-
 EEG = pop_eegfiltnew( EEG, 47.5, 52.5, [], 1 );
 EEG.setname='50 [Hz] Notch';
 EEG = eeg_checkset( EEG );
 [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 
 %LP 45
-%filtered_EEG = pop_eegfilt( notched, 0, 45);
-
 EEG = pop_eegfilt( EEG, 0, 45);
 EEG.setname='45 [Hz] LPF';
 EEG = eeg_checkset( EEG );
@@ -126,17 +119,12 @@ EEG = eeg_checkset( EEG );
 
 %% ICA
 
-% ICA_EEG = pop_runica(filtered_EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
-
 %EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');
 %[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
 EEG.setname='After ICA';
 EEG = eeg_checkset( EEG );
 
 %% pop the gui
-
-% save modifications
- %[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
  
  eeglab redraw
 

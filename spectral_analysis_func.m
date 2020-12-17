@@ -1,5 +1,5 @@
 
-function [] = spectral_analysis_func(ALLEEG,filename,filepath)
+function [Mat] = spectral_analysis_func(ALLEEG,filename,filepath,Mat,k)
 
 fs = 500;
 
@@ -57,37 +57,14 @@ end
  
 
 %% transform to number labeling for each area
-% ***** important: if the electrode's number is lower than 63...
-% ***** than remove the unnecessary
-
-% for 63
-% frontal = [1,32,33,34,35,62,63,4,37,3,36,2,61,30,60,31];
-% central = [8,41,24,57,25];
-% post_occ = [15,46,14,45,13,53,19,52,20,47,48,49,50,51,16,17,18];
-% left = [1,33,34,3,4,36,37,5,6,7,38,39,8,9,41,42,10,11,12,43,44,14,15,45,46,16,47,48];
-% right = [18,19,20,21,22,23,25,26,27,28,29,30,31,32,50,51,52,53,54,55,56,57,58,59,60,61,62,63];
-% broca = [3,4,6,8,37,39];
-% wernick = [9,11,14,15,43,46];
-
 
 [frontal,central,post_occ,left,right,broca,wernick] = fill_regions(Num_elec);
-
-
-% % for 16
-% frontal = [1,2,3,15,16];
-% central = [5];
-% post_occ = [6,7,8,9,10,11,12,13];
-% left = [1,3,4,7,8,9];
-% right = [16,15,14,13,12,11];
-% broca = [3];
-% wernick = [4,7,8];
-
 
 %% calculate the values for this subject
 
 % produce the matrix to export
 brain_areas = 7;
-export_T = zeros(freq_regions,brain_areas);
+export_T = zeros(freq_regions,brain_areas*2);
 
 % delta
 
@@ -174,7 +151,43 @@ export_T(5,2) = gamma_broca;
 gamma_wernick = mean(Wave_Mat(wernick,5));
 export_T(5,1) = gamma_wernick;
 
+%%
+% i = k*5 + 2;
+% Mat(i:i+4,:) = export_T;
+if k==1
+    Mat(1:5,:) = export_T;
+elseif k > 1
+    i = 7*(k-1);
+    Mat(i:i+4,:) = export_T;
+end
+
+
 %%  create table to export
 
-writematrix(export_T,'C:\Users\sasso\Desktop\Studies\Project\B- Brain activity during reading\eeglab2020_0\excel_mat\tryall.xlsx');
+%writematrix(export_T,'C:\Users\sasso\Desktop\Studies\Project\B- Brain activity during reading\eeglab2020_0\excel_mat\tryall.xlsx');
+
+
+%%
+
+
+
+% for 63
+% frontal = [1,32,33,34,35,62,63,4,37,3,36,2,61,30,60,31];
+% central = [8,41,24,57,25];
+% post_occ = [15,46,14,45,13,53,19,52,20,47,48,49,50,51,16,17,18];
+% left = [1,33,34,3,4,36,37,5,6,7,38,39,8,9,41,42,10,11,12,43,44,14,15,45,46,16,47,48];
+% right = [18,19,20,21,22,23,25,26,27,28,29,30,31,32,50,51,52,53,54,55,56,57,58,59,60,61,62,63];
+% broca = [3,4,6,8,37,39];
+% wernick = [9,11,14,15,43,46];
+
+
+
+% % for 16
+% frontal = [1,2,3,15,16];
+% central = [5];
+% post_occ = [6,7,8,9,10,11,12,13];
+% left = [1,3,4,7,8,9];
+% right = [16,15,14,13,12,11];
+% broca = [3];
+% wernick = [4,7,8];
 

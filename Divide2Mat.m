@@ -9,6 +9,10 @@ setDir = 'C:\\Users\\sasso\\Desktop\\Studies\\Project\\B- Brain activity during 
 SubjectsNum = 14;
 TimeSize = 18;
 FreqSize = 45;
+BrainRegNum = 8;
+
+% brain regins
+LF=1; RF=2; LP=3; RP=4; LO=5; RO=6; LT=7; LR=8;
 
 % Excel matrix of dipole's order
 OrdersMat = fliplr(xlsread('orderMat.xlsx','AB2:A9'));
@@ -20,21 +24,47 @@ EEG = pop_loadset('filename',{'11.7_paper.set','11.7_screen.set','14.7_paper.set
 
 
 %% Fill 2 Matrices (Paper,Screen) for 2 chosen brain areas
+% The Big matrices includes:
+%                             The first dimension represent the whole
+%                             connections between two brain regions.
+% For every connection has a 3-D matrix of time*freq for each subject                            
 
-Paper = zeros(FreqSize,TimeSize,SubjectsNum);
-Screen = zeros(FreqSize,TimeSize,SubjectsNum);
+BigPaper = zeros(64,FreqSize,TimeSize,SubjectsNum);
+BigScreen = zeros(64,FreqSize,TimeSize,SubjectsNum);
 
-% brain regins
-LF=1; RF=2; LP=3; RP=4; LO=5; RO=6; LT=7; LR=8;
+for i = 1 : BrainRegNum
+    for j = 1 : BrainRegNum
 
-for subj = 1 : SubjectsNum
-    [Paper,Screen] = Fill2Mat(EEG,OrdersMat,Paper,Screen,subj,LF,LP);
+        Paper = zeros(FreqSize,TimeSize,SubjectsNum);
+        Screen = zeros(FreqSize,TimeSize,SubjectsNum);
+
+        for subj = 1 : SubjectsNum
+            [Paper,Screen] = Fill2Mat(EEG,OrdersMat,Paper,Screen,subj,i,j);
+        end
+        BigPaper((i-1)*8+j,:,:,:) = Paper;
+        BigScreen((i-1)*8+j,:,:,:) = Screen;
+    end
 end
 
-%% P - test for 2 chosen brain areas
 
-[stats1, df1, pvals1, surrog1] = statcond(Paper, Screen, 'mode','bootstrap','naccu',10000 );
-%[h2, crit_p1, adj_ci_cvrg1, adj_p1]=fdr_bh(pvals1);   %fdr correction
+%%   Plotting for check
+
+
+time = EEG(1).CAT.Conn.winCenterTimes;
+freq = 1:45;
+
+Mat = reshape(BigPaper(64,:,:,:),45,18,14);
+
+figure;
+surf(time,freq,Mat(:,:,1));
+
+figure;
+surf(time,freq,Paper(:,:,1));
+
+% %% P - test for 2 chosen brain areas
+% 
+% [stats1, df1, pvals1, surrog1] = statcond(Paper, Screen, 'mode','bootstrap','naccu',10000 );
+% %[h2, crit_p1, adj_ci_cvrg1, adj_p1]=fdr_bh(pvals1);   %fdr correction
 
 
 
